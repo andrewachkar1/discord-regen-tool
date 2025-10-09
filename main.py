@@ -31,6 +31,8 @@ def ensure_directories():
         "output/Single Link Regenerator/full_links.txt",
         "output/Link Fetcher/links.txt",
         "output/Link Fetcher/full_links.txt",
+        "output/Generated Links/links.txt",
+        "output/Generated Links/full_links.txt",
         "input/proxies.txt"
     ]
     for path in paths:
@@ -340,8 +342,8 @@ def generate_new():
         if resp_create.status_code in (200, 201, 204):
             new_code_json = resp_create.json()
             new_code = new_code_json.get("code")
-            safe_write("output/Newly Generated Links/links.txt", f"https://discord.gift/{new_code}\n")
-            safe_write("output/Newly Generated Links/full_links.txt", f"https://discord.gift/{new_code} | Name: {gift_data['name']}\n")
+            safe_write("output/Generated Links/links.txt", f"https://discord.gift/{new_code}\n")
+            safe_write("output/Generated Links/full_links.txt", f"https://discord.gift/{new_code} | Name: {gift_data['name']}\n")
             print(f"{Fore.RESET}{Fore.MAGENTA}[{timestamp()}]{Fore.RESET}({Fore.GREEN}+{Fore.RESET})"
               f"{Fore.GREEN} Generated link ({i+1}/{amount_to_gen}): https://discord.gift/{new_code[:5]}*** | Name: {gift_data['name']}{Fore.RESET}")
             total_generated_count += 1
@@ -522,7 +524,7 @@ def infos():
                                                                             __/ |           
                                                                            |___/            
 """)))
-    print(Colorate.Horizontal(Colors.blue_to_cyan, Center.XCenter("\nmade by @imlittledoo_ - V1.0")))
+    print(Colorate.Horizontal(Colors.blue_to_cyan, Center.XCenter("\nmade by @imlittledoo_ - V1.0 - https://discord.gg/R6qPEHrj")))
 
 def main():
     if platform.system() == "Windows":
