@@ -1,7 +1,5 @@
 import requests, time, os, platform, sys, json, ctypes, random
 from datetime import datetime, timezone
-from keyauth import api
-from keyauth import getchecksum
 from colorama import Fore
 from pystyle import Colorate, Colors, Center
 
@@ -78,21 +76,13 @@ def get_proxy():
         "https": f"http://{proxy_str}"
     }
 
-# -------------------------
-# Unified 429-aware requester
-# -------------------------
 def request_with_retry(method, url, headers=None, json=None, proxies=None, max_retries=6, base_backoff=1.0):
-    """
-    Sends a request and transparently retries on HTTP 429 using server-provided retry_after when available.
-    Also retries on transient RequestExceptions with exponential backoff.
-    """
     attempt = 0
     while True:
         attempt += 1
         try:
             resp = requests.request(method=method, url=url, headers=headers, json=json, proxies=proxies if proxies else None)
         except requests.RequestException as e:
-            # Transient network error retry with exponential backoff
             if attempt >= max_retries:
                 print(f"{Fore.RESET}{Fore.MAGENTA}[{timestamp()}]{Fore.RESET}({Fore.RED}-{Fore.RESET}){Fore.RED} Request failed permanently: {e}{Fore.RESET}")
                 raise
@@ -102,7 +92,6 @@ def request_with_retry(method, url, headers=None, json=None, proxies=None, max_r
             continue
 
         if resp.status_code == 429:
-            # Honor server backoff if provided
             retry_after = 1
             try:
                 data = resp.json()
@@ -111,7 +100,6 @@ def request_with_retry(method, url, headers=None, json=None, proxies=None, max_r
                 pass
             print(f"{Fore.RESET}{Fore.MAGENTA}[{timestamp()}]{Fore.RESET}({Fore.YELLOW}!{Fore.RESET}){Fore.YELLOW} We are being rate-limited! Waiting for {retry_after}s before continuing...{Fore.RESET}")
             if attempt >= max_retries:
-                # After last attempt, still return resp so caller can handle
                 return resp
             time.sleep(retry_after)
             continue
@@ -242,7 +230,6 @@ def generate_new():
             os.system("clear")
         sys.exit()
 
-    # Group entitlements by SKU
     entitlements_by_sku = {}
     for gift in all_gifts:
         sku = gift.get("sku", {})
@@ -427,7 +414,6 @@ def fetcher():
     infos()
     print("\n")
 
-    # Load existing codes from file (just the actual gift codes)
     existing_codes = set()
     try:
         with open("output/Link Fetcher/links.txt", "r", encoding="utf-8") as f:
@@ -435,7 +421,7 @@ def fetcher():
     except FileNotFoundError:
         pass
 
-    processed_codes = set()  # track codes processed in *this* run
+    processed_codes = set()
 
     url1 = "https://discord.com/api/v9/users/@me/entitlements/gifts"
     resp1 = request_with_retry("GET", url1, headers=HEADERS, proxies=proxy)
